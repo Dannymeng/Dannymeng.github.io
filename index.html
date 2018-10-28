@@ -270,125 +270,6 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/28/danny/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Dannymeng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/blog-logo.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/10/28/danny/" itemprop="url">danny</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-28T19:59:28+08:00">
-                2018-10-28
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/28/HA机制及设计思路/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -471,14 +352,13 @@
 <li><p>1、启动zookeeper集群（分别在danny5、danny6、danny7上启动zk）</p>
 <ul>
 <li>cd /hadoop/zookeeper-3.4.5/bin/</li>
-<li>./zkServer.sh start<br>#查看状态：一个leader，两个follower</li>
-<li>./zkServer.sh status</li>
+<li>./zkServer.sh start</li>
+<li>./zkServer.sh status<br>查看状态：一个leader，两个follower</li>
 </ul>
 </li>
 <li><p>2、启动journalnode（分别在在danny5、danny6、danny7上执行）</p>
 <ul>
-<li>cd /app/hadoop-2.9.1</li>
-<li>sbin/hadoop-daemon.sh start journalnode<br>#运行jps命令检验，danny5、danny6、danny7上多了JournalNode进程</li>
+<li>sbin/hadoop-daemon.sh start journalnode<br>运行jps命令检验，danny5、danny6、danny7上多了JournalNode进程</li>
 </ul>
 </li>
 <li><p>3、格式化HDFS(第一次启动时运行一次即可，之后就不需要运行)<br> 在danny1上执行命令:</p>
@@ -487,11 +367,10 @@
 </ul>
 </li>
 </ul>
-<p>#格式化后会在根据core-site.xml中的hadoop.tmp.dir配置生成个文件，这里我配置的是/home/app/hadoop-2.9.1/tmp，然后将/home/app/hadoop-2.9.1/tmp拷贝到danny2的/home/app/hadoop-2.9.1/下。</p>
+<p>格式化后会在根据core-site.xml中的hadoop.tmp.dir配置生成个文件，这里我配置的是/home/app/hadoop-2.9.1/tmp，然后将/home/app/hadoop-2.9.1/tmp拷贝到danny2的/home/app/hadoop-2.9.1/下。</p>
 <ul>
-<li>scp -r tmp/ danny2:/home/app/hadoop-2.9.1</li>
+<li>scp -r tmp/ danny2:/home/app/hadoop-2.9.1<br>也可以这样，建议hdfs namenode -bootstrapStandby</li>
 </ul>
-<p>##也可以这样，建议hdfs namenode -bootstrapStandby</p>
 <ul>
 <li><p>4、格式化ZKFC(在danny1上执行一次即可)</p>
 <ul>
@@ -503,7 +382,7 @@
 <li>sbin/start-dfs.sh</li>
 </ul>
 </li>
-<li><p>6、启动YARN(#####注意#####：是在danny3和danny4上执行start-yarn.sh，把namenode和resourcemanager分开是因为性能问题，因为他们都要占用大量资源，所以把他们分开了，他们分开了就要分别在不同的机器上启动)</p>
+<li><p>6、启动YARN(<strong>注意</strong>：是在danny3和danny4上执行start-yarn.sh，把namenode和resourcemanager分开是因为性能问题，因为他们都要占用大量资源，所以把他们分开了，他们分开了就要分别在不同的机器上启动)</p>
 <ul>
 <li>sbin/start-yarn.sh</li>
 </ul>
@@ -731,7 +610,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">2</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
