@@ -87,15 +87,15 @@
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="HA机制及设计思路还未完成 HA：High Availability高可用 CAP原理：指的是在一个分布式系统中，Consistency（一致性）、 Availability（可用性）、Partition tolerance（分区容错性），最多只能同时三个特性中的两个，三者不可兼得。 qjournal :  edits日志管理，借助zk做分布式协调 192.168.14.132 danny1  n">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/2018/10/28/HA机制及设计思路/HA机制及设计思路/danny1.jpg">
-<meta property="og:image" content="http://yoursite.com/2018/10/28/HA机制及设计思路/HA机制及设计思路/danny2.jpg">
-<meta property="og:image" content="http://yoursite.com/2018/10/28/HA机制及设计思路/HA机制及设计思路/danny3.jpg">
-<meta property="og:image" content="http://yoursite.com/2018/10/28/HA机制及设计思路/HA机制及设计思路/danny4.jpg">
-<meta property="og:updated_time" content="2018-10-28T10:58:30.110Z">
+<meta property="og:image" content="http://yoursite.com/2018/10/28/HA机制及设计思路/_posts/HA%E6%9C%BA%E5%88%B6%E5%8F%8A%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF/danny1.jpg">
+<meta property="og:image" content="http://yoursite.com/2018/10/28/HA机制及设计思路/_posts/HA%E6%9C%BA%E5%88%B6%E5%8F%8A%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF/danny2.jpg">
+<meta property="og:image" content="http://yoursite.com/2018/10/28/HA机制及设计思路/_posts/HA%E6%9C%BA%E5%88%B6%E5%8F%8A%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF/danny3.jpg">
+<meta property="og:image" content="http://yoursite.com/2018/10/28/HA机制及设计思路/_posts/HA%E6%9C%BA%E5%88%B6%E5%8F%8A%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF/danny4.jpg">
+<meta property="og:updated_time" content="2018-10-28T12:19:33.536Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hadoop的HA机制">
 <meta name="twitter:description" content="HA机制及设计思路还未完成 HA：High Availability高可用 CAP原理：指的是在一个分布式系统中，Consistency（一致性）、 Availability（可用性）、Partition tolerance（分区容错性），最多只能同时三个特性中的两个，三者不可兼得。 qjournal :  edits日志管理，借助zk做分布式协调 192.168.14.132 danny1  n">
-<meta name="twitter:image" content="http://yoursite.com/2018/10/28/HA机制及设计思路/HA机制及设计思路/danny1.jpg">
+<meta name="twitter:image" content="http://yoursite.com/2018/10/28/HA机制及设计思路/_posts/HA%E6%9C%BA%E5%88%B6%E5%8F%8A%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF/danny1.jpg">
 
 
 
@@ -351,8 +351,50 @@
 <p>CAP原理：指的是在一个分布式系统中，Consistency（一致性）、 Availability（可用性）、Partition tolerance（分区容错性），最多只能同时三个特性中的两个，三者不可兼得。</p>
 <p>qjournal :  edits日志管理，借助zk做分布式协调</p>
 <p>192.168.14.132 danny1  namenode   zkfc<br>192.168.14.133 danny2  namenode   zkfc<br>192.168.14.134 danny3  resoucemanager<br>192.168.14.135 danny4  resoucemanager<br>192.168.14.136 danny5  nodemanager  datanode zookeeper journalnode<br>192.168.14.137 danny6  nodemanager  datanode  zookeeper journalnode<br>192.168.14.138 danny7  nodemanager  datanode  zookeeper journalnode</p>
-<p><strong>HA联邦机制</strong>：<br>danny1显示“active”<br><img src="HA机制及设计思路/danny1.jpg" alt="danny1"><br>danny2显示“standby”<br><img src="HA机制及设计思路/danny2.jpg" alt="danny2"><br>danny3为yarn的节点<br><img src="HA机制及设计思路/danny3.jpg" alt="danny3"><br>块的名称中包含namenode的id,即第一张图的<code>Block Pool ID</code><br><img src="HA机制及设计思路/danny4.jpg" alt="danny4"></p>
-<p><strong>启动步骤</strong><br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">2.5启动zookeeper集群（分别在mini5、mini6、mini7上启动zk）</span><br><span class="line"></span><br><span class="line">		<span class="built_in">cd</span> /hadoop/zookeeper-3.4.5/bin/</span><br><span class="line"></span><br><span class="line">		./zkServer.sh start</span><br><span class="line"></span><br><span class="line">		<span class="comment">#查看状态：一个leader，两个follower</span></span><br><span class="line"></span><br><span class="line">		./zkServer.sh status</span><br><span class="line"></span><br><span class="line">		</span><br><span class="line"></span><br><span class="line">	2.6启动journalnode（分别在在mini5、mini6、mini7上执行）</span><br><span class="line"></span><br><span class="line">		<span class="built_in">cd</span> /hadoop/hadoop-2.6.4</span><br><span class="line"></span><br><span class="line">		sbin/hadoop-daemon.sh start journalnode</span><br><span class="line"></span><br><span class="line">		<span class="comment">#运行jps命令检验，hadoop05、hadoop06、hadoop07上多了JournalNode进程</span></span><br><span class="line"></span><br><span class="line">	</span><br><span class="line"></span><br><span class="line">	2.7格式化HDFS</span><br><span class="line"></span><br><span class="line">		<span class="comment">#在mini1上执行命令:</span></span><br><span class="line"></span><br><span class="line">		hdfs namenode -format</span><br><span class="line"></span><br><span class="line">		<span class="comment">#格式化后会在根据core-site.xml中的hadoop.tmp.dir配置生成个文件，这里我配置的是/hadoop/hadoop-2.6.4/tmp，然后将/hadoop/hadoop-2.6.4/tmp拷贝到hadoop02的/hadoop/hadoop-2.6.4/下。</span></span><br><span class="line"></span><br><span class="line">		scp -r tmp/ hadoop02:/home/hadoop/app/hadoop-2.6.4/</span><br><span class="line"></span><br><span class="line">		<span class="comment">##也可以这样，建议hdfs namenode -bootstrapStandby</span></span><br><span class="line"></span><br><span class="line">	</span><br><span class="line"></span><br><span class="line">	2.8格式化ZKFC(在mini1上执行一次即可)</span><br><span class="line"></span><br><span class="line">		hdfs zkfc -formatZK</span><br><span class="line"></span><br><span class="line">	</span><br><span class="line"></span><br><span class="line">	2.9启动HDFS(在mini1上执行)</span><br><span class="line"></span><br><span class="line">		sbin/start-dfs.sh</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	2.10启动YARN(<span class="comment">#####注意#####：是在hadoop02上执行start-yarn.sh，把namenode和resourcemanager分开是因为性能问题，因为他们都要占用大量资源，所以把他们分开了，他们分开了就要分别在不同的机器上启动)</span></span><br><span class="line"></span><br><span class="line">		sbin/start-yarn.sh</span><br></pre></td></tr></table></figure></p>
+<p><strong>HA联邦机制</strong>：<br>danny1显示“active”<br><img src="_posts/HA%E6%9C%BA%E5%88%B6%E5%8F%8A%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF/danny1.jpg" alt="danny1"><br>danny2显示“standby”<br><img src="_posts/HA%E6%9C%BA%E5%88%B6%E5%8F%8A%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF/danny2.jpg" alt="danny2"><br>danny3为yarn的节点<br><img src="_posts/HA%E6%9C%BA%E5%88%B6%E5%8F%8A%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF/danny3.jpg" alt="danny3"><br>块的名称中包含namenode的id,即第一张图的<code>Block Pool ID</code><br><img src="_posts/HA%E6%9C%BA%E5%88%B6%E5%8F%8A%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF/danny4.jpg" alt="danny4"></p>
+<p><strong>启动步骤</strong></p>
+<ul>
+<li><p>1、启动zookeeper集群（分别在danny5、danny6、danny7上启动zk）</p>
+<ul>
+<li>cd /hadoop/zookeeper-3.4.5/bin/</li>
+<li>./zkServer.sh start<br>#查看状态：一个leader，两个follower</li>
+<li>./zkServer.sh status</li>
+</ul>
+</li>
+<li><p>2、启动journalnode（分别在在danny5、danny6、danny7上执行）</p>
+<ul>
+<li>cd /app/hadoop-2.9.1</li>
+<li>sbin/hadoop-daemon.sh start journalnode<br>#运行jps命令检验，danny5、danny6、danny7上多了JournalNode进程</li>
+</ul>
+</li>
+<li><p>3、格式化HDFS(第一次启动时运行一次即可，之后就不需要运行)<br> 在danny1上执行命令:</p>
+<ul>
+<li>hdfs namenode -format</li>
+</ul>
+</li>
+</ul>
+<p>#格式化后会在根据core-site.xml中的hadoop.tmp.dir配置生成个文件，这里我配置的是/home/app/hadoop-2.9.1/tmp，然后将/home/app/hadoop-2.9.1/tmp拷贝到danny2的/home/app/hadoop-2.9.1/下。</p>
+<ul>
+<li>scp -r tmp/ danny2:/home/app/hadoop-2.9.1</li>
+</ul>
+<p>##也可以这样，建议hdfs namenode -bootstrapStandby</p>
+<ul>
+<li><p>4、格式化ZKFC(在danny1上执行一次即可)</p>
+<ul>
+<li>hdfs zkfc -formatZK</li>
+</ul>
+</li>
+<li><p>5、启动HDFS(在danny1上执行)</p>
+<ul>
+<li>sbin/start-dfs.sh</li>
+</ul>
+</li>
+<li><p>6、启动YARN(#####注意#####：是在danny3和danny4上执行start-yarn.sh，把namenode和resourcemanager分开是因为性能问题，因为他们都要占用大量资源，所以把他们分开了，他们分开了就要分别在不同的机器上启动)</p>
+<ul>
+<li>sbin/start-yarn.sh</li>
+</ul>
+</li>
+</ul>
 <p><strong>使用eclipse客户端运行hadoop的坑</strong>：<br><code>1</code>由于使用了逻辑名称代替namenode,客户端并不知道namenode的具体位置，所以需要告诉客户端hadoop的<code>namenode</code>在哪。</p>
 <ul>
 <li>将<code>core-site.xml</code>和<code>hdfs-site.xml</code>配置文件放在客户端的classpath下（src文件下）</li>
