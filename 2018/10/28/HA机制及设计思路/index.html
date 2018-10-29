@@ -91,7 +91,7 @@
 <meta property="og:image" content="http://yoursite.com/2018/10/28/HA机制及设计思路/danny2.jpg">
 <meta property="og:image" content="http://yoursite.com/2018/10/28/HA机制及设计思路/danny3.jpg">
 <meta property="og:image" content="http://yoursite.com/2018/10/28/HA机制及设计思路/danny4.jpg">
-<meta property="og:updated_time" content="2018-10-29T05:00:47.844Z">
+<meta property="og:updated_time" content="2018-10-29T05:02:52.483Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hadoop的HA机制">
 <meta name="twitter:description" content="阅读全文">
@@ -350,8 +350,7 @@
       
 
       
-        <h1 id="HA机制及设计思路"><a href="#HA机制及设计思路" class="headerlink" title="HA机制及设计思路"></a>HA机制及设计思路</h1><p>还未完成</p>
-<p>HA：High Availability高可用</p>
+        <h1 id="HA机制及设计思路"><a href="#HA机制及设计思路" class="headerlink" title="HA机制及设计思路"></a>HA机制及设计思路</h1><p>还未完成<br><a id="more"></a><br>HA：High Availability高可用</p>
 <p>CAP原理：指的是在一个分布式系统中，Consistency（一致性）、 Availability（可用性）、Partition tolerance（分区容错性），最多只能同时三个特性中的两个，三者不可兼得。</p>
 <p>qjournal :  edits日志管理，借助zk做分布式协调</p>
 <p><strong>七台机器及配置</strong><br>192.168.14.132 danny1  namenode   zkfc<br>192.168.14.133 danny2  namenode   zkfc<br>192.168.14.134 danny3  resoucemanager<br>192.168.14.135 danny4  resoucemanager<br>192.168.14.136 danny5  nodemanager  datanode zookeeper journalnode<br>192.168.14.137 danny6  nodemanager  datanode  zookeeper journalnode<br>192.168.14.138 danny7  nodemanager  datanode  zookeeper journalnode</p>
