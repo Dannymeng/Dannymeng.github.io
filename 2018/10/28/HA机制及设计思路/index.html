@@ -79,22 +79,22 @@
 
 
 
-<meta name="description" content="HA机制及设计思路还未完成 HA：High Availability高可用 CAP原理：指的是在一个分布式系统中，Consistency（一致性）、 Availability（可用性）、Partition tolerance（分区容错性），最多只能同时三个特性中的两个，三者不可兼得。 qjournal :  edits日志管理，借助zk做分布式协调 192.168.14.132 danny1  n">
+<meta name="description" content="阅读全文">
 <meta name="keywords" content="Hadoop">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Hadoop的HA机制">
 <meta property="og:url" content="http://yoursite.com/2018/10/28/HA机制及设计思路/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="HA机制及设计思路还未完成 HA：High Availability高可用 CAP原理：指的是在一个分布式系统中，Consistency（一致性）、 Availability（可用性）、Partition tolerance（分区容错性），最多只能同时三个特性中的两个，三者不可兼得。 qjournal :  edits日志管理，借助zk做分布式协调 192.168.14.132 danny1  n">
+<meta property="og:description" content="阅读全文">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2018/10/28/HA机制及设计思路/danny1.jpg">
 <meta property="og:image" content="http://yoursite.com/2018/10/28/HA机制及设计思路/danny2.jpg">
 <meta property="og:image" content="http://yoursite.com/2018/10/28/HA机制及设计思路/danny3.jpg">
 <meta property="og:image" content="http://yoursite.com/2018/10/28/HA机制及设计思路/danny4.jpg">
-<meta property="og:updated_time" content="2018-10-29T04:41:03.931Z">
+<meta property="og:updated_time" content="2018-10-29T05:00:47.844Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hadoop的HA机制">
-<meta name="twitter:description" content="HA机制及设计思路还未完成 HA：High Availability高可用 CAP原理：指的是在一个分布式系统中，Consistency（一致性）、 Availability（可用性）、Partition tolerance（分区容错性），最多只能同时三个特性中的两个，三者不可兼得。 qjournal :  edits日志管理，借助zk做分布式协调 192.168.14.132 danny1  n">
+<meta name="twitter:description" content="阅读全文">
 <meta name="twitter:image" content="http://yoursite.com/2018/10/28/HA机制及设计思路/danny1.jpg">
 
 
@@ -332,6 +332,10 @@
           
 
           
+              <div class="post-description">
+                  阅读全文
+              </div>
+          
 
         </div>
       </header>
@@ -350,7 +354,7 @@
 <p>HA：High Availability高可用</p>
 <p>CAP原理：指的是在一个分布式系统中，Consistency（一致性）、 Availability（可用性）、Partition tolerance（分区容错性），最多只能同时三个特性中的两个，三者不可兼得。</p>
 <p>qjournal :  edits日志管理，借助zk做分布式协调</p>
-<p>192.168.14.132 danny1  namenode   zkfc<br>192.168.14.133 danny2  namenode   zkfc<br>192.168.14.134 danny3  resoucemanager<br>192.168.14.135 danny4  resoucemanager<br>192.168.14.136 danny5  nodemanager  datanode zookeeper journalnode<br>192.168.14.137 danny6  nodemanager  datanode  zookeeper journalnode<br>192.168.14.138 danny7  nodemanager  datanode  zookeeper journalnode</p>
+<p><strong>七台机器及配置</strong><br>192.168.14.132 danny1  namenode   zkfc<br>192.168.14.133 danny2  namenode   zkfc<br>192.168.14.134 danny3  resoucemanager<br>192.168.14.135 danny4  resoucemanager<br>192.168.14.136 danny5  nodemanager  datanode zookeeper journalnode<br>192.168.14.137 danny6  nodemanager  datanode  zookeeper journalnode<br>192.168.14.138 danny7  nodemanager  datanode  zookeeper journalnode</p>
 <p><strong>HA联邦机制</strong>：<br>danny1显示“active”<br><img src="/2018/10/28/HA机制及设计思路/danny1.jpg" alt="danny1"><br>danny2显示“standby”<br><img src="/2018/10/28/HA机制及设计思路/danny2.jpg" alt="danny2"><br>danny3为yarn的节点<br><img src="/2018/10/28/HA机制及设计思路/danny3.jpg" alt="danny3"><br>块的名称中包含namenode的id,即第一张图的<code>Block Pool ID</code><br><img src="/2018/10/28/HA机制及设计思路/danny4.jpg" alt="danny4"></p>
 <p><strong>启动步骤</strong></p>
 <p>1、启动zookeeper集群（分别在danny5、danny6、danny7上启动zk）</p>
