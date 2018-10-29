@@ -352,12 +352,14 @@
 <ul>
 <li>cd /hadoop/zookeeper-3.4.5/bin/</li>
 <li>./zkServer.sh start</li>
-<li><p>./zkServer.sh status<br>查看状态：一个leader，两个follower</p>
+<li>./zkServer.sh status<br>查看状态：一个leader，两个follower</li>
+</ul>
 <p>2、启动journalnode（分别在在danny5、danny6、danny7上执行）</p>
-</li>
-<li><p>sbin/hadoop-daemon.sh start journalnode<br>运行jps命令检验，danny5、danny6、danny7上多了JournalNode进程</p>
-<p>3、格式化HDFS(第一次启动时运行一次即可，之后就不需要运行)<br>在danny1上执行命令:</p>
-</li>
+<ul>
+<li>sbin/hadoop-daemon.sh start journalnode<br>运行jps命令检验，danny5、danny6、danny7上多了JournalNode进程</li>
+</ul>
+<p>3、格式化HDFS(第一次启动时运行一次即可，之后就不需要运行)<br>    在danny1上执行命令:</p>
+<ul>
 <li>hdfs namenode -format</li>
 </ul>
 <p>格式化后会在根据core-site.xml中的hadoop.tmp.dir配置生成个文件，这里我配置的是/home/app/hadoop-2.9.1/tmp，然后将/home/app/hadoop-2.9.1/tmp拷贝到danny2的/home/app/hadoop-2.9.1/下。</p>
@@ -376,7 +378,7 @@
 <ul>
 <li>sbin/start-yarn.sh</li>
 </ul>
-<p><strong>使用eclipse客户端运行hadoop的坑</strong>：<br><code>1</code>由于使用了逻辑名称代替namenode,客户端并不知道namenode的具体位置，所以需要告诉客户端hadoop的<code>namenode</code>在哪。</p>
+<h2 id="HA模式使用API遇到的一些问题"><a href="#HA模式使用API遇到的一些问题" class="headerlink" title="HA模式使用API遇到的一些问题"></a>HA模式使用API遇到的一些问题</h2><p><strong>使用eclipse客户端运行hadoop的坑</strong>：<br><code>1</code>由于使用了逻辑名称代替namenode,客户端并不知道namenode的具体位置，所以需要告诉客户端hadoop的<code>namenode</code>在哪。</p>
 <ul>
 <li>将<code>core-site.xml</code>和<code>hdfs-site.xml</code>配置文件放在客户端的classpath下（src文件下）</li>
 <li>然后在configuration中设置<strong>defaultFS</strong><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">	FileSystem fs = <span class="keyword">null</span>;</span><br><span class="line">	Configuration conf = <span class="keyword">null</span>;</span><br><span class="line">	<span class="meta">@Before</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">		</span><br><span class="line">		conf = <span class="keyword">new</span> Configuration();</span><br><span class="line">		conf.set(<span class="string">"fs.defaultFS"</span>, <span class="string">"hdfs://bi/"</span>);</span><br><span class="line">		<span class="comment">//拿到一个文件操作的客户端实例对象</span></span><br><span class="line"><span class="comment">//		fs  = FileSystem.get(conf);</span></span><br><span class="line">		fs = FileSystem.get(<span class="keyword">new</span> URI(<span class="string">"hdfs://bi/"</span>), conf, <span class="string">"hadoop"</span>);</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
