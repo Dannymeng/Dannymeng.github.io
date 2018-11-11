@@ -344,7 +344,7 @@
             <h1 id="storm集群任务提交流程"><a href="#storm集群任务提交流程" class="headerlink" title="storm集群任务提交流程"></a>storm集群任务提交流程</h1><p>问题:<br>1、集群如何启动，任务如何执行？<br>  java -server nimbus ,supervisor<br>  client —&gt; createTopology(序列化)—&gt; 提交jar到nimbus的inbox文件夹—&gt;nimbus分配任务（task总数/worker总数 ）—&gt;写到zk上。<br>  zk<----watch----supervisor--->识别自己的任务—&gt;启动worker<br>  zk<---worker---->TaskInfo—&gt;启动Spout/Bolt</---worker----></----watch----supervisor---></p>
 <p>一个worker=一个进程=一个jvm=一个端口号=一个槽</p>
 <p>   集群架构中的各个模块如何启动？<br>   nimbus：用户启动<br>   supervisor：用户启动<br>   worker：supervisor启动<br>   Task：worker启动</p>
-<p>任务如何分配，如何执行？<br>看图说话<br><img src="/2018/11/10/storm机制/$resource/6.png" alt=""></p>
+<p>任务如何分配，如何执行？<br>看图说话<br><img src="/2018/11/10/storm机制/6.png" alt=""></p>
 <p>2、集群如何通信？<br>  集群架构中的各个模块是如何通信的？外部通信<br>  拓扑程序中的各个Task是如何通信的？内部通信</p>
 <p>3、如何保证消息不丢失？<br>ack-fail机制如何实现的？</p>
 <p>4、【手动练习】尝试自己实现一个而类似storm数据执行的框架</p>
