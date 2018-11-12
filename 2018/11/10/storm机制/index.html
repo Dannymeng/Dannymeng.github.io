@@ -79,20 +79,20 @@
 
 
 
-<meta name="description" content="storm集群任务提交流程问题:1、集群如何启动，任务如何执行？  java -server nimbus ,supervisor  client —&amp;gt; createTopology(序列化)—&amp;gt; 提交jar到nimbus的inbox文件夹—&amp;gt;nimbus分配任务（task总数/worker总数 ）—&amp;gt;写到zk上。  zk识别自己的任务—&amp;gt;启动worker  zkTa">
+<meta name="description" content="storm集群任务提交流程">
 <meta name="keywords" content="storm">
 <meta property="og:type" content="article">
 <meta property="og:title" content="storm集群任务提交流程">
 <meta property="og:url" content="http://yoursite.com/2018/11/10/storm机制/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="storm集群任务提交流程问题:1、集群如何启动，任务如何执行？  java -server nimbus ,supervisor  client —&amp;gt; createTopology(序列化)—&amp;gt; 提交jar到nimbus的inbox文件夹—&amp;gt;nimbus分配任务（task总数/worker总数 ）—&amp;gt;写到zk上。  zk识别自己的任务—&amp;gt;启动worker  zkTa">
+<meta property="og:description" content="storm集群任务提交流程">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2018/11/10/storm机制/6.png">
 <meta property="og:image" content="http://yoursite.com/2018/11/10/storm机制/5.png">
-<meta property="og:updated_time" content="2018-11-12T05:20:48.577Z">
+<meta property="og:updated_time" content="2018-11-12T05:24:22.629Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="storm集群任务提交流程">
-<meta name="twitter:description" content="storm集群任务提交流程问题:1、集群如何启动，任务如何执行？  java -server nimbus ,supervisor  client —&amp;gt; createTopology(序列化)—&amp;gt; 提交jar到nimbus的inbox文件夹—&amp;gt;nimbus分配任务（task总数/worker总数 ）—&amp;gt;写到zk上。  zk识别自己的任务—&amp;gt;启动worker  zkTa">
+<meta name="twitter:description" content="storm集群任务提交流程">
 <meta name="twitter:image" content="http://yoursite.com/2018/11/10/storm机制/6.png">
 
 
@@ -344,7 +344,8 @@
       
 
       
-        <h1 id="storm集群任务提交流程"><a href="#storm集群任务提交流程" class="headerlink" title="storm集群任务提交流程"></a>storm集群任务提交流程</h1><p>问题:<br>1、集群如何启动，任务如何执行？<br>  java -server nimbus ,supervisor<br>  client —&gt; createTopology(序列化)—&gt; 提交jar到nimbus的inbox文件夹—&gt;nimbus分配任务（task总数/worker总数 ）—&gt;写到zk上。<br>  zk<---watch---supervisor--->识别自己的任务—&gt;启动worker<br>  zk<---worker--->TaskInfo—&gt;启动Spout/Bolt</---worker---></---watch---supervisor---></p>
+        <h1 id="storm集群任务提交流程"><a href="#storm集群任务提交流程" class="headerlink" title="storm集群任务提交流程"></a>storm集群任务提交流程</h1><a id="more"></a>
+<p>问题:<br>1、集群如何启动，任务如何执行？<br>  java -server nimbus ,supervisor<br>  client —&gt; createTopology(序列化)—&gt; 提交jar到nimbus的inbox文件夹—&gt;nimbus分配任务（task总数/worker总数 ）—&gt;写到zk上。<br>  zk<---watch---supervisor--->识别自己的任务—&gt;启动worker<br>  zk<---worker--->TaskInfo—&gt;启动Spout/Bolt</---worker---></---watch---supervisor---></p>
 <p>一个worker=一个进程=一个jvm=一个端口号=一个槽</p>
 <p>   集群架构中的各个模块如何启动？<br>   nimbus：用户启动<br>   supervisor：用户启动<br>   worker：supervisor启动<br>   Task：worker启动</p>
 <p>任务如何分配，如何执行？<br>看图说话<br><img src="/2018/11/10/storm机制/6.png" alt=""></p>
@@ -353,20 +354,19 @@
 <p>4、【手动练习】尝试自己实现一个而类似storm数据执行的框架</p>
 <h2 id="1-、-集群如何启动，任务如何执行？"><a href="#1-、-集群如何启动，任务如何执行？" class="headerlink" title="1 、 集群如何启动，任务如何执行？"></a>1 、 集群如何启动，任务如何执行？</h2><h3 id="storm启动流程分析"><a href="#storm启动流程分析" class="headerlink" title="storm启动流程分析"></a>storm启动流程分析</h3><p>\ ——————————-</p>
 <p><strong>程序员client</strong></p>
-<p><code>1</code>、客户端运行storm nimbus时，会调用storm的脚本，生成一条java命令，命令格式如下：java -server xxxx.ClassName -args<br>numbus—&gt;Running: /usr/local/jdk1.8.0_181/bin/java -server 一段参数 org.apache.storm.daemon.nimbus<br>supervisor—&gt; Running: /usr/local/jdk1.8.0_181/bin/java -server 一些参数 org.apache.storm.daemon.supervisor.Supervisor<br>\ ———————————</p>
+<p><code>1</code>、客户端运行storm nimbus时，会调用storm的脚本，生成一条java命令，命令格式如下：java -server xxxx.ClassName -args<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">numbus---&gt;Running:/usr/<span class="built_in">local</span>/jdk1.8.0_181/bin/java -server 一段参数 org.apache.storm.daemon.nimbus</span><br><span class="line">supervisor---&gt;Running:/usr/<span class="built_in">local</span>/jdk1.8.0_181/bin/java -server 一些参数 org.apache.storm.daemon.supervisor.Supervisor</span><br></pre></td></tr></table></figure></p>
+<p>\ ———————————</p>
 <p><strong>nimbus</strong></p>
 <p><code>2</code>、nimbus启动之后，接受客户端提交任务<br>命令格式：storm jar  xxx.jar xxx驱动类 （参数）<br>Running: /usr/local/jdk1.8.0_181/bin/java -client -Dstorm.jar=storm.jar cn.itcast.storm.WordCountTopologyMain</p>
 <p>该命令会执行storm.jar中的cn.itcast.storm.WordCountTopologyMain类中main方法，main方法中会执行一下代码：<code>StormSubmitter.submitTopology(&quot;mywordcount&quot;, config , topologyBuilder.createTopology());</code>，topologyBuilder.createTopology()会将程序员编写的spout对象和bolt对象序列化<br>会将用户的jar上传到nimbus物理节点的/home/hadoop/app/storm/localdir/nimbus/inbox文件夹下，并且改名，改名的规则时添加一个UUID字符串<br>在即将运行的worker物理节点的 /home/hadoop/app/storm/localdir/supervisor/stormdist目录下生成一个文件夹，里面保存着正在运行的topology的jar包和配置文件，序列化对象文件<br><img src="/2018/11/10/storm机制/5.png" alt=""></p>
 <p><code>3</code>、nimbus接受到任务之后，会将任务进行分配，分配会产生一个assignment对象，该对象会保存到zk中，目录时/storm/assignments中,该目录只保存正在运行的topology任务</p>
 <p>\ ———————————</p>
 <p><strong>supervisor</strong></p>
-<p><code>4</code>supervisor通过watch机制，感知到nimbus在zk上的任务信息，从zk上拉取任务信息，分辨出属于自己的任务。（查看nimbus.log）<br>executor-&gt;node+port {[8 8] [“eb2ebcc7-9bf9-4b86-9150-b72e3bfff75e” 6701], [2 2] [“eb2ebcc7-9bf9-4b86-9150-b72e3bfff75e” 6701]等等<br>worker-&gt;resources {[“feafc90f-afe4-4893-8148-2ce416a9de00” 6700] [0.0 0.0 0.0], [“1656a4db-3f89-4986-a496-51cd7f0d75ea” 6700] [0.0 0.0 0.0]}, :owner “hadoop”}</p>
-<p><code>5</code>根据自己的任务信息，启动自己的worker，并分配一个端口(查看日志文件supervisor.log)</p>
-<p>‘/usr/local/jdk1.8.0_181/bin/java’ ‘-cp’ ‘/home/hadoop/app/storm/localdir/supervisor/stormdist/mywordcount-3-1541871500/stormjar.jar’ ‘-Xmx64m’</p>
-<p>‘org.apache.storm.daemon.worker’ ‘mywordcount-3-1541871500’ ‘1656a4db-3f89-4986-a496-51cd7f0d75ea’ ‘6700’ ‘aa39d565-6dd8-4631-a9cb-48a188415632’</p>
+<p><code>4</code>supervisor通过watch机制，感知到nimbus在zk上的任务信息，从zk上拉取任务信息，分辨出属于自己的任务。（查看nimbus.log）<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">executor-&gt;node+port &#123;[8 8] [<span class="string">"eb2ebcc7-9bf9-4b86-9150-b72e3bfff75e"</span> 6701], [2 2] [<span class="string">"eb2ebcc7-9bf9-4b86-9150-b72e3bfff75e"</span> 6701]等等</span><br><span class="line">worker-&gt;resources &#123;[<span class="string">"feafc90f-afe4-4893-8148-2ce416a9de00"</span> 6700] [0.0 0.0 0.0], [<span class="string">"1656a4db-3f89-4986-a496-51cd7f0d75ea"</span> 6700] [0.0 0.0 0.0]&#125;, :owner <span class="string">"hadoop"</span>&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>5</code>根据自己的任务信息，启动自己的worker，并分配一个端口(查看日志文件supervisor.log)<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">'/usr/local/jdk1.8.0_181/bin/java'</span> <span class="string">'-cp'</span> <span class="string">'/home/hadoop/app/storm/localdir/supervisor/stormdist/mywordcount-3-1541871500/stormjar.jar'</span> <span class="string">'-Xmx64m'</span></span><br><span class="line"><span class="string">'org.apache.storm.daemon.worker'</span> <span class="string">'mywordcount-3-1541871500'</span> <span class="string">'1656a4db-3f89-4986-a496-51cd7f0d75ea'</span> <span class="string">'6700'</span> <span class="string">'aa39d565-6dd8-4631-a9cb-48a188415632'</span></span><br></pre></td></tr></table></figure></p>
 <p>\ ———————————</p>
 <p><strong>worker</strong></p>
-<p><code>6</code>worker启动之后，连接zk<br>executor-&gt;node+port {[8 8] [“eb2ebcc7-9bf9-4b86-9150-b72e3bfff75e” 6701], [2 2] [“eb2ebcc7-9bf9-4b86-9150-b72e3bfff75e” 6701]等等<br>worker-&gt;resources {[“feafc90f-afe4-4893-8148-2ce416a9de00” 6700] [0.0 0.0 0.0], [“1656a4db-3f89-4986-a496-51cd7f0d75ea” 6700] [0.0 0.0 0.0]}, :owner “hadoop”}</p>
+<p><code>6</code>worker启动之后，连接zk<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">executor-&gt;node+port &#123;[<span class="number">8</span> <span class="number">8</span>] [<span class="string">"eb2ebcc7-9bf9-4b86-9150-b72e3bfff75e"</span> <span class="number">6701</span>], [<span class="number">2</span> <span class="number">2</span>] [<span class="string">"eb2ebcc7-9bf9-4b86-9150-b72e3bfff75e"</span> <span class="number">6701</span>]等等</span><br><span class="line">worker-&gt;resources &#123;[<span class="string">"feafc90f-afe4-4893-8148-2ce416a9de00"</span> <span class="number">6700</span>] [<span class="number">0.0</span> <span class="number">0.0</span> <span class="number">0.0</span>], [<span class="string">"1656a4db-3f89-4986-a496-51cd7f0d75ea"</span> <span class="number">6700</span>] [<span class="number">0.0</span> <span class="number">0.0</span> <span class="number">0.0</span>]&#125;, :owner <span class="string">"hadoop"</span>&#125;</span><br></pre></td></tr></table></figure></p>
 <p>假设任务信息为：<br>1—&gt;spout—type : spout<br>2—&gt;bolt—type : bolt<br>3—&gt;acker—type ：bolt</p>
 <p>得到对象有几种方式？<br>new ClassName创建对象、class.forName反射对象、clone 克隆对象、序列化反序列化</p>
 <p>worker通过反序列化，得到自定义的spout和bolt对象</p>
