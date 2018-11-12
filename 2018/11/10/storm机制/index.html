@@ -88,8 +88,8 @@
 <meta property="og:description" content="storm集群任务提交流程问题:1、集群如何启动，任务如何执行？  java -server nimbus ,supervisor  client —&amp;gt; createTopology(序列化)—&amp;gt; 提交jar到nimbus的inbox文件夹—&amp;gt;nimbus分配任务（task总数/worker总数 ）—&amp;gt;写到zk上。  zk识别自己的任务—&amp;gt;启动worker  zkTa">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2018/11/10/storm机制/6.png">
-<meta property="og:image" content="http://yoursite.com/2018/11/10/storm机制/$resource/5.png">
-<meta property="og:updated_time" content="2018-11-11T04:06:42.903Z">
+<meta property="og:image" content="http://yoursite.com/2018/11/10/storm机制/5.png">
+<meta property="og:updated_time" content="2018-11-11T13:39:34.369Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="storm集群任务提交流程">
 <meta name="twitter:description" content="storm集群任务提交流程问题:1、集群如何启动，任务如何执行？  java -server nimbus ,supervisor  client —&amp;gt; createTopology(序列化)—&amp;gt; 提交jar到nimbus的inbox文件夹—&amp;gt;nimbus分配任务（task总数/worker总数 ）—&amp;gt;写到zk上。  zk识别自己的任务—&amp;gt;启动worker  zkTa">
@@ -357,7 +357,7 @@
 <p>-——————————–</p>
 <p><strong>nimbus</strong></p>
 <p><code>2</code>、nimbus启动之后，接受客户端提交任务<br>命令格式：storm jar  xxx.jar xxx驱动类 （参数）<br>Running: /usr/local/jdk1.8.0_181/bin/java -client -Dstorm.jar=storm.jar cn.itcast.storm.WordCountTopologyMain</p>
-<p>该命令会执行storm.jar中的cn.itcast.storm.WordCountTopologyMain类中main方法，main方法中会执行一下代码：<code>StormSubmitter.submitTopology(&quot;mywordcount&quot;, config , topologyBuilder.createTopology());</code>，topologyBuilder.createTopology()会将程序员编写的spout对象和bolt对象序列化<br>会将用户的jar上传到nimbus物理节点的/home/hadoop/app/storm/localdir/nimbus/inbox文件夹下，并且改名，改名的规则时添加一个UUID字符串<br>在即将运行的worker物理节点的 /home/hadoop/app/storm/localdir/supervisor/stormdist目录下生成一个文件夹，里面保存着正在运行的topology的jar包和配置文件，序列化对象文件<br><img src="/2018/11/10/storm机制/$resource/5.png" alt=""></p>
+<p>该命令会执行storm.jar中的cn.itcast.storm.WordCountTopologyMain类中main方法，main方法中会执行一下代码：<code>StormSubmitter.submitTopology(&quot;mywordcount&quot;, config , topologyBuilder.createTopology());</code>，topologyBuilder.createTopology()会将程序员编写的spout对象和bolt对象序列化<br>会将用户的jar上传到nimbus物理节点的/home/hadoop/app/storm/localdir/nimbus/inbox文件夹下，并且改名，改名的规则时添加一个UUID字符串<br>在即将运行的worker物理节点的 /home/hadoop/app/storm/localdir/supervisor/stormdist目录下生成一个文件夹，里面保存着正在运行的topology的jar包和配置文件，序列化对象文件<br><img src="/2018/11/10/storm机制/5.png" alt=""></p>
 <p><code>3</code>、nimbus接受到任务之后，会将任务进行分配，分配会产生一个assignment对象，该对象会保存到zk中，目录时/storm/assignments中,该目录只保存正在运行的topology任务</p>
 <p>-——————————–</p>
 <p><strong>supervisor</strong></p>
