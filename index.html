@@ -270,6 +270,130 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/19/春风/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Dannymeng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/blog-logo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/11/19/春风/" itemprop="url">春风</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-19T00:30:13+08:00">
+                2018-11-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h1 id="春风"><a href="#春风" class="headerlink" title=" 春风"></a><center> 春风</center></h1>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/11/19/春风/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/18/kafka/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -340,27 +464,14 @@
 
       
         
-          
-            <h1 id="kafka"><a href="#kafka" class="headerlink" title="kafka"></a>kafka</h1><p>Kafka的概念：</p>
-<ul>
-<li>1、类JMS,消费者可以多个，并且主动拉取数据</li>
-<li>2、数据生产者 messageProducer</li>
-<li>3、数据消费者 messageConsumer</li>
-<li>4、数据保存的进程，实例：broker  拉皮条，每台服务器都有独立的broker进程</li>
-<li>5、数据目的(分类 ，主题)：destination |  topic</li>
-<li>6、数据分片：partition，有多个，有副本</li>
-</ul>
-<p>—————-生产者<br><code>1</code>生产者分组策略<br>默认为kafka.producer.DefaultPartitioner，按照key 哈希取模<br><code>2</code>如何保证数据的完全生产<br>答：设置发送数据是否需要服务端的反馈,有三个值0,1,-1</p>
-<ul>
-<li>0: producer不会等待broker发送ack </li>
-<li>1: 当leader接收到消息之后发送ack </li>
-<li>-1: 当所有的follower都同步消息成功后发送ack. </li>
-</ul>
-<p>————–服务端<br><code>3</code>每个partition的数据如何保存到硬盘<br>每个partition都有一个而目录，相当于一个大文件被切割成很多固定大小的小文件，默认1G,7天<br><code>4</code>kafka有什么独特的特点<br><code>5</code>partition的数量和broker数量的关系</p>
-<p>————— 消费者<br><code>6</code>消费者如何标记消费状态<br><code>7</code>消费者负载均衡的策略</p>
-<p><a href="https://blog.csdn.net/qq_20641565/article/details/59746101" target="_blank" rel="noopener"> <u>链接网址</u></a><br><code>8</code>如何保证消费者消费的数据是有序的<br>伪命题。<br>1、生产者是集群模式—&gt;全局序号管理器<br>2、broker端只设置一个partition—&gt;kafka的高并发下的负载均衡，kafka的效果就展现不出来<br>3、消费者如果是一个组，如何保证消息有序？消费者来一个线程（自定义一个数据结构做排序，数据非常大，）</p>
-
-          
+          <h1 id="kafka"><a href="#kafka" class="headerlink" title="  kafka"></a><center>  kafka</center></h1>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/11/18/kafka/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -938,7 +1049,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-count">6</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
