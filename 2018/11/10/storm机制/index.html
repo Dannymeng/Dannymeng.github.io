@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="storm集群任务提交流程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="storm集群任务提交流程">
+<meta property="og:url" content="http://example.com/2018/11/10/storm%E6%9C%BA%E5%88%B6/index.html">
+<meta property="og:site_name" content="danny">
+<meta property="og:description" content="storm集群任务提交流程">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2018/11/10/storm%E6%9C%BA%E5%88%B6/storm%E6%9C%BA%E5%88%B6/6.png">
+<meta property="og:image" content="http://example.com/2018/11/10/storm%E6%9C%BA%E5%88%B6/storm%E6%9C%BA%E5%88%B6/5.png">
+<meta property="article:published_time" content="2018-11-10T14:59:11.000Z">
+<meta property="article:modified_time" content="2018-11-12T05:25:42.000Z">
+<meta property="article:author" content="Danny meng">
+<meta property="article:tag" content="storm">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2018/11/10/storm%E6%9C%BA%E5%88%B6/storm%E6%9C%BA%E5%88%B6/6.png">
+
+<link rel="canonical" href="http://example.com/2018/11/10/storm%E6%9C%BA%E5%88%B6/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>storm集群任务提交流程 | danny</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">danny</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">danny的空间</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>标签<span class="badge">3</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>分类<span class="badge">0</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>归档<span class="badge">5</span></a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2018/11/10/storm%E6%9C%BA%E5%88%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Danny meng">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="danny">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          storm集群任务提交流程
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-11-10 22:59:11" itemprop="dateCreated datePublished" datetime="2018-11-10T22:59:11+08:00">2018-11-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2018-11-12 13:25:42" itemprop="dateModified" datetime="2018-11-12T13:25:42+08:00">2018-11-12</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="storm集群任务提交流程"><a href="#storm集群任务提交流程" class="headerlink" title="storm集群任务提交流程"></a>storm集群任务提交流程</h1><span id="more"></span>
+
+
+<p>问题:<br>1、集群如何启动，任务如何执行？<br>  java -server nimbus ,supervisor<br>  client —&gt; createTopology(序列化)—&gt; 提交jar到nimbus的inbox文件夹—&gt;nimbus分配任务（task总数/worker总数 ）—&gt;写到zk上。<br>  zk&lt;—watch—supervisor—&gt;识别自己的任务—&gt;启动worker<br>  zk&lt;—worker—&gt;TaskInfo—&gt;启动Spout/Bolt</p>
+<p>一个worker=一个进程=一个jvm=一个端口号=一个槽</p>
+<p>   集群架构中的各个模块如何启动？<br>   nimbus：用户启动<br>   supervisor：用户启动<br>   worker：supervisor启动<br>   Task：worker启动</p>
+<p>任务如何分配，如何执行？<br>看图说话<br><img src="storm%E6%9C%BA%E5%88%B6/6.png"></p>
+<p>2、集群如何通信？<br>  集群架构中的各个模块是如何通信的？外部通信<br>  拓扑程序中的各个Task是如何通信的？内部通信</p>
+<p>3、如何保证消息不丢失？<br>ack-fail机制如何实现的？</p>
+<p>4、【手动练习】尝试自己实现一个而类似storm数据执行的框架</p>
+<h2 id="1-、-集群如何启动，任务如何执行？"><a href="#1-、-集群如何启动，任务如何执行？" class="headerlink" title="1 、 集群如何启动，任务如何执行？"></a>1 、 集群如何启动，任务如何执行？</h2><h3 id="storm启动流程分析"><a href="#storm启动流程分析" class="headerlink" title="storm启动流程分析"></a>storm启动流程分析</h3><p>-——————————</p>
+<p><strong>程序员client</strong></p>
+<p><code>1</code>、客户端运行storm nimbus时，会调用storm的脚本，生成一条java命令，命令格式如下：java -server xxxx.ClassName -args</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">numbus---&gt;Running:/usr/local/jdk1.8.0_181/bin/java -server 一段参数 org.apache.storm.daemon.nimbus</span><br><span class="line">supervisor---&gt;Running:/usr/local/jdk1.8.0_181/bin/java -server 一些参数 org.apache.storm.daemon.supervisor.Supervisor</span><br></pre></td></tr></table></figure>
+
+<p>-——————————-</p>
+<p><strong>nimbus</strong></p>
+<p><code>2</code>、nimbus启动之后，接受客户端提交任务<br>命令格式：storm jar  xxx.jar xxx驱动类 （参数）<br>Running: /usr/local/jdk1.8.0_181/bin/java -client -Dstorm.jar=storm.jar cn.itcast.storm.WordCountTopologyMain</p>
+<p>该命令会执行storm.jar中的cn.itcast.storm.WordCountTopologyMain类中main方法，main方法中会执行一下代码：<code>StormSubmitter.submitTopology(&quot;mywordcount&quot;, config , topologyBuilder.createTopology());</code>，topologyBuilder.createTopology()会将程序员编写的spout对象和bolt对象序列化<br>会将用户的jar上传到nimbus物理节点的/home/hadoop/app/storm/localdir/nimbus/inbox文件夹下，并且改名，改名的规则时添加一个UUID字符串<br>在即将运行的worker物理节点的 /home/hadoop/app/storm/localdir/supervisor/stormdist目录下生成一个文件夹，里面保存着正在运行的topology的jar包和配置文件，序列化对象文件<br><img src="storm%E6%9C%BA%E5%88%B6/5.png"></p>
+<p><code>3</code>、nimbus接受到任务之后，会将任务进行分配，分配会产生一个assignment对象，该对象会保存到zk中，目录时/storm/assignments中,该目录只保存正在运行的topology任务</p>
+<p>-——————————–</p>
+<p><strong>supervisor</strong></p>
+<p><code>4</code>supervisor通过watch机制，感知到nimbus在zk上的任务信息，从zk上拉取任务信息，分辨出属于自己的任务。（查看nimbus.log）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">executor-&gt;node+port &#123;[8 8] [<span class="string">&quot;eb2ebcc7-9bf9-4b86-9150-b72e3bfff75e&quot;</span> 6701], [2 2] [<span class="string">&quot;eb2ebcc7-9bf9-4b86-9150-b72e3bfff75e&quot;</span> 6701]等等</span><br><span class="line">worker-&gt;resources &#123;[<span class="string">&quot;feafc90f-afe4-4893-8148-2ce416a9de00&quot;</span> 6700] [0.0 0.0 0.0], [<span class="string">&quot;1656a4db-3f89-4986-a496-51cd7f0d75ea&quot;</span> 6700] [0.0 0.0 0.0]&#125;, :owner <span class="string">&quot;hadoop&quot;</span>&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><code>5</code>根据自己的任务信息，启动自己的worker，并分配一个端口(查看日志文件supervisor.log)</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#x27;/usr/local/jdk1.8.0_181/bin/java&#x27;</span> <span class="string">&#x27;-cp&#x27;</span> <span class="string">&#x27;/home/hadoop/app/storm/localdir/supervisor/stormdist/mywordcount-3-1541871500/stormjar.jar&#x27;</span> <span class="string">&#x27;-Xmx64m&#x27;</span></span><br><span class="line"><span class="string">&#x27;org.apache.storm.daemon.worker&#x27;</span> <span class="string">&#x27;mywordcount-3-1541871500&#x27;</span> <span class="string">&#x27;1656a4db-3f89-4986-a496-51cd7f0d75ea&#x27;</span> <span class="string">&#x27;6700&#x27;</span> <span class="string">&#x27;aa39d565-6dd8-4631-a9cb-48a188415632&#x27;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>-——————————–</p>
+<p><strong>worker</strong></p>
+<p><code>6</code>worker启动之后，连接zk</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">executor-&gt;node+port &#123;[<span class="number">8</span> <span class="number">8</span>] [<span class="string">&quot;eb2ebcc7-9bf9-4b86-9150-b72e3bfff75e&quot;</span> <span class="number">6701</span>], [<span class="number">2</span> <span class="number">2</span>] [<span class="string">&quot;eb2ebcc7-9bf9-4b86-9150-b72e3bfff75e&quot;</span> <span class="number">6701</span>]等等</span><br><span class="line">worker-&gt;resources &#123;[<span class="string">&quot;feafc90f-afe4-4893-8148-2ce416a9de00&quot;</span> <span class="number">6700</span>] [<span class="number">0.0</span> <span class="number">0.0</span> <span class="number">0.0</span>], [<span class="string">&quot;1656a4db-3f89-4986-a496-51cd7f0d75ea&quot;</span> <span class="number">6700</span>] [<span class="number">0.0</span> <span class="number">0.0</span> <span class="number">0.0</span>]&#125;, :owner <span class="string">&quot;hadoop&quot;</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>假设任务信息为：<br>1—&gt;spout—type : spout<br>2—&gt;bolt—type : bolt<br>3—&gt;acker—type ：bolt</p>
+<p>得到对象有几种方式？<br>new ClassName创建对象、class.forName反射对象、clone 克隆对象、序列化反序列化</p>
+<p>worker通过反序列化，得到自定义的spout和bolt对象</p>
+<p>7、worker根据任务类型，分别执行spout任务或者bolte任务<br>spout的生命周期：open、nextTuple、declareOutputFields<br>bolt的生命周期：prepare、execute(Tuple)、declareOutputFields</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/storm/" rel="tag"># storm</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/10/28/HA%E6%9C%BA%E5%88%B6%E5%8F%8A%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF/" rel="prev" title="Hadoop的HA机制">
+      <i class="fa fa-chevron-left"></i> Hadoop的HA机制
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/11/18/kafka/" rel="next" title="Kafka">
+      Kafka <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#storm%E9%9B%86%E7%BE%A4%E4%BB%BB%E5%8A%A1%E6%8F%90%E4%BA%A4%E6%B5%81%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">storm集群任务提交流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E3%80%81-%E9%9B%86%E7%BE%A4%E5%A6%82%E4%BD%95%E5%90%AF%E5%8A%A8%EF%BC%8C%E4%BB%BB%E5%8A%A1%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%EF%BC%9F"><span class="nav-number">1.1.</span> <span class="nav-text">1 、 集群如何启动，任务如何执行？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#storm%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90"><span class="nav-number">1.1.1.</span> <span class="nav-text">storm启动流程分析</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Danny meng</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Danny meng</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

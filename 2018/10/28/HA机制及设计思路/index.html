@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="HA机制及设计思路还未完成">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hadoop的HA机制">
+<meta property="og:url" content="http://example.com/2018/10/28/HA%E6%9C%BA%E5%88%B6%E5%8F%8A%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF/index.html">
+<meta property="og:site_name" content="danny">
+<meta property="og:description" content="HA机制及设计思路还未完成">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2018/10/28/HA%E6%9C%BA%E5%88%B6%E5%8F%8A%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF/HA%E6%9C%BA%E5%88%B6%E5%8F%8A%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF/danny1.jpg">
+<meta property="og:image" content="http://example.com/2018/10/28/HA%E6%9C%BA%E5%88%B6%E5%8F%8A%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF/HA%E6%9C%BA%E5%88%B6%E5%8F%8A%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF/danny2.jpg">
+<meta property="og:image" content="http://example.com/2018/10/28/HA%E6%9C%BA%E5%88%B6%E5%8F%8A%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF/HA%E6%9C%BA%E5%88%B6%E5%8F%8A%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF/danny3.jpg">
+<meta property="og:image" content="http://example.com/2018/10/28/HA%E6%9C%BA%E5%88%B6%E5%8F%8A%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF/HA%E6%9C%BA%E5%88%B6%E5%8F%8A%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF/danny4.jpg">
+<meta property="article:published_time" content="2018-10-28T09:00:00.000Z">
+<meta property="article:modified_time" content="2022-03-21T08:48:18.000Z">
+<meta property="article:author" content="Danny meng">
+<meta property="article:tag" content="Hadoop">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2018/10/28/HA%E6%9C%BA%E5%88%B6%E5%8F%8A%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF/HA%E6%9C%BA%E5%88%B6%E5%8F%8A%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF/danny1.jpg">
+
+<link rel="canonical" href="http://example.com/2018/10/28/HA%E6%9C%BA%E5%88%B6%E5%8F%8A%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Hadoop的HA机制 | danny</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">danny</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">danny的空间</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>标签<span class="badge">3</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>分类<span class="badge">0</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>归档<span class="badge">5</span></a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2018/10/28/HA%E6%9C%BA%E5%88%B6%E5%8F%8A%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Danny meng">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="danny">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Hadoop的HA机制
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-10-28 17:00:00" itemprop="dateCreated datePublished" datetime="2018-10-28T17:00:00+08:00">2018-10-28</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-03-21 16:48:18" itemprop="dateModified" datetime="2022-03-21T16:48:18+08:00">2022-03-21</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="HA机制及设计思路"><a href="#HA机制及设计思路" class="headerlink" title="HA机制及设计思路"></a>HA机制及设计思路</h1><p>还未完成</p>
+<span id="more"></span>
+<p>HA：High Availability高可用</p>
+<p>CAP原理：指的是在一个分布式系统中，Consistency（一致性）、 Availability（可用性）、Partition tolerance（分区容错性），最多只能同时三个特性中的两个，三者不可兼得。</p>
+<p>qjournal :  edits日志管理，借助zk做分布式协调</p>
+<p><strong>七台机器及配置</strong><br>192.168.14.132 danny1  namenode   zkfc<br>192.168.14.133 danny2  namenode   zkfc<br>192.168.14.134 danny3  resoucemanager<br>192.168.14.135 danny4  resoucemanager<br>192.168.14.136 danny5  nodemanager  datanode zookeeper journalnode<br>192.168.14.137 danny6  nodemanager  datanode  zookeeper journalnode<br>192.168.14.138 danny7  nodemanager  datanode  zookeeper journalnode</p>
+<p><strong>HA联邦机制</strong>：<br>danny1显示“active”<br><img src="HA%E6%9C%BA%E5%88%B6%E5%8F%8A%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF/danny1.jpg" alt="danny1"><br>danny2显示“standby”<br><img src="HA%E6%9C%BA%E5%88%B6%E5%8F%8A%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF/danny2.jpg" alt="danny2"><br>danny3为yarn的节点<br><img src="HA%E6%9C%BA%E5%88%B6%E5%8F%8A%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF/danny3.jpg" alt="danny3"><br>块的名称中包含namenode的id,即第一张图的<code>Block Pool ID</code><br><img src="HA%E6%9C%BA%E5%88%B6%E5%8F%8A%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF/danny4.jpg" alt="danny4"></p>
+<p><strong>启动步骤</strong></p>
+<p>1、启动zookeeper集群（分别在danny5、danny6、danny7上启动zk）</p>
+<ul>
+<li>cd /hadoop/zookeeper-3.4.5/bin/</li>
+<li>./zkServer.sh start</li>
+<li>./zkServer.sh status<br>查看状态：一个leader，两个follower</li>
+</ul>
+<p>2、启动journalnode（分别在在danny5、danny6、danny7上执行）</p>
+<ul>
+<li>sbin/hadoop-daemon.sh start journalnode<br>运行jps命令检验，danny5、danny6、danny7上多了JournalNode进程</li>
+</ul>
+<p>3、格式化HDFS(第一次启动时运行一次即可，之后就不需要运行)<br>    在danny1上执行命令:</p>
+<ul>
+<li> hdfs namenode -format</li>
+</ul>
+<p>格式化后会在根据core-site.xml中的hadoop.tmp.dir配置生成个文件，这里我配置的是/home/app/hadoop-2.9.1/tmp，然后将/home/app/hadoop-2.9.1/tmp拷贝到danny2的/home/app/hadoop-2.9.1/下。</p>
+<ul>
+<li>scp -r tmp/ danny2:/home/app/hadoop-2.9.1<br>也可以这样，建议hdfs namenode -bootstrapStandby</li>
+</ul>
+<pre><code>​    
+</code></pre>
+<p>4、格式化ZKFC(在danny1上执行一次即可)</p>
+<ul>
+<li> hdfs zkfc -formatZK</li>
+</ul>
+<p>5、启动HDFS(在danny1上执行)</p>
+<ul>
+<li>sbin/start-dfs.sh</li>
+</ul>
+<p>6、启动YARN(<strong>注意</strong>：是在danny3和danny4上执行start-yarn.sh，把namenode和resourcemanager分开是因为性能问题，因为他们都要占用大量资源，所以把他们分开了，他们分开了就要分别在不同的机器上启动)</p>
+<ul>
+<li>sbin/start-yarn.sh</li>
+</ul>
+<h2 id="HA模式使用API遇到的一些问题"><a href="#HA模式使用API遇到的一些问题" class="headerlink" title="HA模式使用API遇到的一些问题"></a>HA模式使用API遇到的一些问题</h2><p><strong>使用eclipse客户端运行hadoop的坑</strong>：<br><code>1</code>由于使用了逻辑名称代替namenode,客户端并不知道namenode的具体位置，所以需要告诉客户端hadoop的<code>namenode</code>在哪。</p>
+<ul>
+<li>将<code>core-site.xml</code>和<code>hdfs-site.xml</code>配置文件放在客户端的classpath下（src文件下）</li>
+<li>   然后在configuration中设置<strong>defaultFS</strong><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">	<span class="type">FileSystem</span> <span class="variable">fs</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">	<span class="type">Configuration</span> <span class="variable">conf</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">	<span class="meta">@Before</span></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">init</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">		</span><br><span class="line">		conf = <span class="keyword">new</span> <span class="title class_">Configuration</span>();</span><br><span class="line">		conf.set(<span class="string">&quot;fs.defaultFS&quot;</span>, <span class="string">&quot;hdfs://bi/&quot;</span>);</span><br><span class="line">		<span class="comment">//拿到一个文件操作的客户端实例对象</span></span><br><span class="line"><span class="comment">//		fs  = FileSystem.get(conf);</span></span><br><span class="line">		fs = FileSystem.get(<span class="keyword">new</span> <span class="title class_">URI</span>(<span class="string">&quot;hdfs://bi/&quot;</span>), conf, <span class="string">&quot;hadoop&quot;</span>);</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/wt346326775/article/details/72597694">参考文章</a></p>
+<p><strong>打包成jar包在服务器上运行的问题</strong><br><code>1</code>由于我不知道的mapreduce日志放在哪，并且控制台显示的信息有限，并没有显示错误的关键信息。所以现在jar里面设置打印日志文件。</p>
+<ul>
+<li>在工程的src目录下新建文件<code>log4j.properties</code>,内容如下<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># Configure logging <span class="keyword">for</span> testing: optionally with log file</span><br><span class="line"> </span><br><span class="line">#log4j.rootLogger=debug,appender</span><br><span class="line">log4j.rootLogger=info,appender</span><br><span class="line">#log4j.rootLogger=error,appender</span><br><span class="line"> </span><br><span class="line">#\u8F93\u51FA\u5230\u63A7\u5236\u53F0</span><br><span class="line">log4j.appender.appender=org.apache.log4j.ConsoleAppender</span><br><span class="line">#\u6837\u5F0F\u4E3ATTCCLayout</span><br><span class="line">log4j.appender.appender.layout=org.apache.log4j.TTCCLayout</span><br></pre></td></tr></table></figure>
+之后就可以查看日志文件了，日志文件会放在<code>$HADOOP_HOME/logs/userlogs</code>下面。</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/hadoop_/article/details/43672173">参考文献</a></p>
+<p><code>2</code>碰到了一个问题，由于在Hadoop的HA模式下实现，并不是很熟悉，HA机制下Mapredece程序无法运行<br>修改yarn-site.xml文件</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;property&gt; </span><br><span class="line">    &lt;name&gt;yarn.resourcemanager.webapp.address.rm1&lt;/name&gt;  </span><br><span class="line">    &lt;value&gt;danny3:<span class="number">8088</span>&lt;/value&gt; </span><br><span class="line">&lt;/property&gt;  </span><br><span class="line"></span><br><span class="line">&lt;property&gt; </span><br><span class="line">    &lt;name&gt;yarn.resourcemanager.webapp.address.rm2&lt;/name&gt;  </span><br><span class="line">    &lt;value&gt;danny4:<span class="number">8088</span>&lt;/value&gt; </span><br><span class="line">&lt;/property&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_38337823/article/details/80580422">参考文章</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Hadoop/" rel="tag"># Hadoop</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2018/11/10/storm%E6%9C%BA%E5%88%B6/" rel="next" title="storm集群任务提交流程">
+      storm集群任务提交流程 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#HA%E6%9C%BA%E5%88%B6%E5%8F%8A%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF"><span class="nav-number">1.</span> <span class="nav-text">HA机制及设计思路</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#HA%E6%A8%A1%E5%BC%8F%E4%BD%BF%E7%94%A8API%E9%81%87%E5%88%B0%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98"><span class="nav-number">1.1.</span> <span class="nav-text">HA模式使用API遇到的一些问题</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Danny meng</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Danny meng</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
