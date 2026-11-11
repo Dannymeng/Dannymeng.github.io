@@ -1,226 +1,88 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>安全提示</title>
-    <style>
-        /* 基础重置 */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
-            background-color: #f7f7f7;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        /* 卡片容器 */
-        .warning-card {
-            background: #fff;
-            width: 100%;
-            max-width: 400px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        /* 头部警告色块 */
-        .card-header {
-            background-color: #ff9800; /* 警示橙色 */
-            padding: 20px;
-            text-align: center;
-            color: white;
-        }
-
-        .icon-warning {
-            font-size: 40px;
-            margin-bottom: 10px;
-            display: block;
-        }
-
-        .header-title {
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        /* 内容区域 */
-        .card-body {
-            padding: 20px;
-        }
-
-        .risk-text {
-            font-size: 14px;
-            line-height: 1.6;
-            color: #666;
-            margin-bottom: 20px;
-            background: #fffbe6;
-            padding: 10px;
-            border-radius: 6px;
-            border: 1px solid #ffe58f;
-        }
-
-        .highlight {
-            color: #d4380d;
-            font-weight: bold;
-        }
-
-        /* 授权勾选区域 */
-        .auth-section {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 20px;
-            cursor: pointer;
-        }
-
-        .auth-checkbox {
-            margin-top: 2px;
-            margin-right: 8px;
-            transform: scale(1.2); /* 放大复选框以便点击 */
-            accent-color: #07c160; /* 微信绿 */
-        }
-
-        .auth-label {
-            font-size: 13px;
-            color: #555;
-            line-height: 1.4;
-        }
-
-        /* 按钮区域 */
-        .btn-group {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
-
-        .btn:active {
-            opacity: 0.8;
-        }
-
-        .btn-cancel {
-            background-color: #f5f5f5;
-            color: #666;
-        }
-
-        .btn-confirm {
-            background-color: #07c160; /* 微信绿 */
-            color: white;
-        }
-
-        .btn-confirm:disabled {
-            background-color: #a0d8b9;
-            cursor: not-allowed;
-        }
-
-        /* 动画 */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* 底部免责声明 */
-        .footer-note {
-            margin-top: 15px;
-            font-size: 12px;
-            color: #999;
-            text-align: center;
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+  <title>安全提醒 - 广东金调联</title>
+  <script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
+  <style>
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:#f6f7f9;color:#24282e;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft Yahei",sans-serif}
+    .card{width:100%;max-width:420px;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 8px 26px #15202912}.head{background:#f09b19;color:#fff;text-align:center;padding:23px}.head h1{font-size:19px;margin:8px 0 0}.head .ico{font-size:34px}.body{padding:22px}.notice{background:#fff9e8;border:1px solid #f8deb3;color:#5c5550;border-radius:8px;padding:13px;font-size:14px;line-height:1.85}.notice strong{color:#9b4208}
+    .target{margin:14px 0 16px;color:#6b7280;font-size:12px;line-height:1.7;overflow-wrap:anywhere}.agreement{display:flex;gap:9px;align-items:flex-start;font-size:13px;line-height:1.65;margin-bottom:17px}.agreement input{margin:3px 0 0;accent-color:#07c160;width:17px;height:17px;flex:none}
+    .actions{display:grid;grid-template-columns:1fr 1fr;gap:12px}.plain,.overlay{width:100%;height:46px;border:0;border-radius:7px;font-size:15px}.plain{background:#eef0f3;color:#555}.launch-wrap{position:relative;width:100%;height:46px}.launch-wrap wx-open-launch-weapp{display:block;width:100%;height:46px}.overlay{position:absolute;inset:0;z-index:2;background:#b5d7c0;color:#fff;cursor:not-allowed}.overlay.ready{display:none}
+    .status{margin-top:17px;border-radius:8px;padding:10px 12px;background:#f4f6f8;color:#576170;font-size:12px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}.status.bad{background:#fff2ee;color:#a33828}.status.good{background:#edfaf0;color:#18692d}.footer{margin-top:16px;font-size:11px;color:#9ca3af;text-align:center}
+    details{margin-top:10px;color:#8a909a;font-size:11px;line-height:1.6}pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:180px;overflow:auto;background:#f6f7f9;padding:9px;border-radius:6px}
+  </style>
 </head>
 <body>
-
-    <div class="warning-card">
-        <div class="card-header">
-            <span class="icon-warning">⚠️</span>
-            <div class="header-title">即将离开微信公众号</div>
+  <section class="card">
+    <header class="head"><div class="ico">⚠</div><h1>即将前往第三方小程序</h1></header>
+    <div class="body">
+      <div class="notice">您即将前往<strong>“广东金调联”</strong>微信小程序。服务由第三方提供，请注意保护个人隐私及财产安全，核实业务办理主体。</div>
+      <div class="target">小程序 AppID：wxb9bab63825e06a00<br>原始 ID：gh_7ff1b29b71a9<br>页面：pages/home/home</div>
+      <label class="agreement"><input id="agree" type="checkbox"><span>我已阅读并知悉上述安全提醒，确认前往该小程序。</span></label>
+      <div class="actions">
+        <button class="plain" onclick="history.length>1?history.back():alert('已取消跳转')">取消</button>
+        <div class="launch-wrap">
+          <!-- 原生开放标签始终留在页面内；仅以覆盖层阻止未勾选/未授权时点击。 -->
+          <wx-open-launch-weapp id="launch" username="gh_7ff1b29b71a9" path="pages/home/home.html">
+            <script type="text/wxtag-template">
+              <style>.btn{display:block;width:100%;height:46px;line-height:46px;padding:0;margin:0;border:0;border-radius:7px;background:#07c160;color:#fff;font-size:15px;text-align:center;cursor:pointer}</style>
+              <button class="btn">确认跳转</button>
+            </script>
+          </wx-open-launch-weapp>
+          <button class="overlay" id="overlay" type="button" disabled>确认跳转</button>
         </div>
-        
-        <div class="card-body">
-            <div class="risk-text">
-                您即将访问第三方网页：<br>
-                <span class="highlight" id="target-url-display">https://example.com</span><br><br>
-                该页面内容由第三方提供，请注意保护个人隐私及财产安全，谨防诈骗。
-            </div>
-
-            <label class="auth-section">
-                <input type="checkbox" id="agree-checkbox" class="auth-checkbox">
-                <span class="auth-label">我已阅读并知晓上述风险，自愿承担访问后果，并授权跳转。</span>
-            </label>
-
-            <div class="btn-group">
-                <button class="btn btn-cancel" onclick="goBack()">取消</button>
-                <button class="btn btn-confirm" id="confirm-btn" disabled onclick="confirmRedirect()">确认跳转</button>
-            </div>
-            
-            <div class="footer-note">
-                为了您的账号安全，请勿在陌生页面输入密码
-            </div>
-        </div>
+      </div>
+      <div class="status" id="status">正在检查微信环境……</div>
+      <details><summary>查看诊断信息（便于排查）</summary><pre id="details"></pre></details>
+      <div class="footer">请勿在不可信页面输入密码或短信验证码</div>
     </div>
-
-    <script>
-        // 1. 获取URL参数中的目标链接
-        // 假设访问地址为: yourdomain.com/redirect.html?url=https://baidu.com
-        function getQueryParam(param) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(param);
-        }
-
-        // 设置默认目标链接（防止没有传参）
-        const targetUrl = getQueryParam('url') || 'https://wxaurl.cn/vuM6zySN0Hm';
-        
-        // 在页面上显示目标域名，增加透明度
-        document.getElementById('target-url-display').textContent = targetUrl;
-
-        // 2. 监听复选框状态
-        const checkbox = document.getElementById('agree-checkbox');
-        const confirmBtn = document.getElementById('confirm-btn');
-
-        checkbox.addEventListener('change', function() {
-            if (this.checked) {
-                confirmBtn.removeAttribute('disabled');
-            } else {
-                confirmBtn.setAttribute('disabled', 'true');
-            }
-        });
-
-        // 3. 确认跳转逻辑
-        function confirmRedirect() {
-            // 可选：在这里添加埋点统计，记录谁点击了确认
-            
-            // 执行跳转
-            window.location.href = targetUrl;
-        }
-
-        // 4. 取消逻辑
-        function goBack() {
-            // 尝试返回上一页，如果不行则关闭 webview (部分微信环境支持)
-            if (window.history.length > 1) {
-                window.history.back();
-            } else {
-                // 微信JS-SDK关闭窗口的尝试，或者直接提示
-                alert('已取消跳转');
-            }
-        }
-    </script>
+  </section>
+  <script>
+  (() => {
+    // 必须在自己的 HTTPS 服务器实现；这个地址不是微信提供的公共接口。
+    const SIGNATURE_API = '/api/wechat/js-sdk-config';
+    const $ = id => document.getElementById(id);
+    const agree = $('agree'), overlay = $('overlay'), statusEl = $('status'), diag = $('details'), launch = $('launch');
+    let sdkReady = false, tagReady = false;
+    const log = (line) => { diag.textContent += (diag.textContent ? '\n' : '') + line; };
+    const show = (message, type = '') => {statusEl.textContent = message;statusEl.className = 'status ' + type;log(message);};
+    function render() {
+      const enabled = agree.checked && sdkReady && tagReady;
+      overlay.classList.toggle('ready', enabled);
+      overlay.disabled = true;
+      if (sdkReady && tagReady && !agree.checked) show('微信授权成功。请先勾选安全提示，再点击“确认跳转”。', 'good');
+      else if (enabled) show('微信授权和跳转组件已就绪，请点击绿色“确认跳转”按钮。', 'good');
+    }
+    agree.addEventListener('change', render);
+    launch.addEventListener('ready', () => {tagReady = true; log('开放标签 ready');render();});
+    launch.addEventListener('launch', e => {log('开放标签 launch: ' + JSON.stringify(e.detail||{}));show('已经发起打开小程序的请求。', 'good');});
+    launch.addEventListener('error', e => {const m=JSON.stringify(e.detail||{});show('打开失败：' + m + '\n请检查小程序原始 ID、页面路径与小程序正式版状态。', 'bad');});
+    async function init() {
+      const ua = navigator.userAgent;
+      log('页面协议：' + location.protocol);
+      log('微信内打开：' + /MicroMessenger/i.test(ua));
+      if (location.protocol !== 'https:') return show('当前为本地文件或非 HTTPS 地址，无法使用微信开放标签。请先部署到 HTTPS 网站。', 'bad');
+      if (!/MicroMessenger/i.test(ua) || /wxwork/i.test(ua)) return show('请在手机微信的内置浏览器打开本页面；电脑浏览器、企业微信或本地文件不能直接验证。', 'bad');
+      if (!window.wx || typeof wx.config !== 'function') return show('微信 JS-SDK 加载失败，请检查网络或 JS 文件。', 'bad');
+      try {
+        const url = location.href.split('#')[0];
+        const endpoint = SIGNATURE_API + '?url=' + encodeURIComponent(url);
+        log('请求公众号 JS-SDK 签名接口：' + SIGNATURE_API);
+        const response = await fetch(endpoint, {credentials:'same-origin',cache:'no-store'});
+        if (!response.ok) throw new Error('签名接口返回 HTTP ' + response.status + '；请先在服务器实现 ' + SIGNATURE_API);
+        const c = await response.json();
+        if (c.errcode) throw new Error('后台签名接口报错：' + JSON.stringify(c));
+        for (const k of ['appId','timestamp','nonceStr','signature']) if (c[k] === undefined || c[k] === null || c[k] === '') throw new Error('签名接口缺少字段：' + k);
+        log('签名接口调用成功，公众号 AppID：' + c.appId);
+        wx.ready(() => {sdkReady=true;log('wx.ready 已触发');show('公众号 JS-SDK 签名验证成功，正在等待跳转组件就绪……');render();});
+        wx.error(err => {sdkReady=false;show('微信鉴权失败：' + JSON.stringify(err) + '\n请检查签名 URL、公众号 JS 接口安全域名及公众号权限。', 'bad');});
+        wx.config({debug:false,appId:c.appId,timestamp:Number(c.timestamp),nonceStr:c.nonceStr,signature:c.signature,jsApiList:[],openTagList:['wx-open-launch-weapp']});
+      } catch (e) {show('无法启用小程序跳转：' + e.message, 'bad');}
+    }
+    init();
+  })();
+  </script>
 </body>
 </html>
